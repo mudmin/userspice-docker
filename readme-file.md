@@ -29,7 +29,10 @@ This repository contains a Docker setup for running UserSpice, a user management
 6. The default username of this install is admin and the password is password.
    You will be asked to change it on your first login.
 
-7. Access phpMyAdmin at `http://localhost:9701` (or the port you specified in .env)
+7. If you see SQLSTATE[HY000] [2002] Connection refused, your mysql container has
+   probably not finished booting.   
+
+8. Access phpMyAdmin at `http://localhost:9701` (or the port you specified in .env)
 
 ## Configuration
 
