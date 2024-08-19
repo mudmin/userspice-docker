@@ -1,0 +1,10 @@
+# .gitignore
+
+# Ignore MySQL data
+mysql_data/
+
+# Ignore common OS and editor files
+.DS_Store
+Thumbs.db
+*.swp
+*.swo
