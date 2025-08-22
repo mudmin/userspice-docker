@@ -64,6 +64,19 @@ include $abs_us_root.$us_url_root.'users/lang/'.$_SESSION['us_lang'].".php";
 
 //check for a custom page
 $currentPage = currentPage();
+
+// TOTP enforcement
+if ($user->isLoggedIn() && isset($settings->totp) && $settings->totp > 0) {
+    require_once $abs_us_root . $us_url_root . 'users/includes/totp_enforcement.php';
+    handleTotpEnforcement($user, $settings, $currentPage);
+}
+
+// This acts as the "OAuth jail" similar to TOTP jail
+if ($user->isLoggedIn() && isset($settings->oauth_server) && $settings->oauth_server > 0) {
+    require_once $abs_us_root . $us_url_root . 'users/includes/oauth_enforcement.php';
+    handleOAuthEnforcement($user, $settings, $currentPage);
+}
+
 if($settings->debug > 0){
 	if($settings->debug == 2 || ($settings->debug == 1 && isUserLoggedIn() && $user->data()->id == 1)){
 
@@ -90,6 +103,8 @@ if($settings->debug > 0){
 
 	}
 }
+
+userspiceActiveLog($currentPage, $user);
 
 if(isset($_GET['err'])){
 	$err = Input::get('err');
@@ -136,39 +151,23 @@ if(!$user->isLoggedIn()){
 	}
 }
 
-if ($settings->force_ssl==1){
-	$isSecure = false;
-
-	if(
-		isset($_SERVER['HTTPS'])
-		&& $_SERVER['HTTPS'] == 'on')
-		{
-		$isSecure = true;
-	}elseif (
-		!empty($_SERVER['HTTP_X_FORWARDED_PROTO'])
-		&& $_SERVER['HTTP_X_FORWARDED_PROTO'] == 'https'
-		|| !empty($_SERVER['HTTP_X_FORWARDED_SSL'])
-		&& $_SERVER['HTTP_X_FORWARDED_SSL'] == 'on') {
-		$isSecure = true;
-	}
-		if ($isSecure != true) {
-		// if request is not secure, redirect to secure url
-		$url = 'https://'.$_SERVER['HTTP_HOST'].$_SERVER['REQUEST_URI'];
-		Redirect::to($url);
-		exit;
-	}
-
+if ($settings->force_ssl == 1 && !isHTTPSConnection()) {
+    $url = 'https://' . $_SERVER['HTTP_HOST'] . $_SERVER['REQUEST_URI'];
+    Redirect::to($url);
+    exit;
 }
 
 // Get html lang attribute, default 'en'
 if(isset($_SESSION['us_lang'])){ $html_lang = substr($_SESSION['us_lang'],0,2);}else{$html_lang = 'en';}
 
 
-if($user->isLoggedIn() && $currentPage != 'user_settings.php' && $currentPage != 'logout.php' && $user->data()->force_pr == 1){
+$no_pr = ["user_settings.php","logout.php","pw_strength_check.php"];
+if($user->isLoggedIn() && !in_array($currentPage,$no_pr) && $user->data()->force_pr == 1){
 	$resetMsg = lang("VER_PLEASE");
 	usError($resetMsg);
 	Redirect::to($us_url_root.'users/user_settings.php');
 }
+
 
 $page=currentFile();
 $titleQ = $db->query('SELECT title FROM pages WHERE page = ?', array($page));

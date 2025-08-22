@@ -188,7 +188,7 @@ if (!function_exists('updateUser')) {
   function updateUser($column, $id, $value)
   {
     global $db, $user;
-    if (isset($user->data()->column)) { //check for a valid column
+    if (isset($user->data()->$column)) { //check for a valid column
       $result = $db->query("UPDATE users SET $column = ? WHERE id = ?", [$value, $id]);
       return $result;
     } else {
@@ -198,7 +198,7 @@ if (!function_exists('updateUser')) {
 }
 
 if (!function_exists('fetchUserName')) {
-  //Fetchs CONCAT of Fname Lname
+  //Fetches CONCAT of Fname Lname
   function fetchUserName($username = null, $token = null, $id = null)
   {
     global $db;
@@ -367,7 +367,7 @@ if (!function_exists("usersWithTag")) {
 
 
 if (!function_exists('socialLogin')) {
-  function socialLogin($email, $username, $idArray, $fields)
+  function socialLogin($email, $username, $idArray, $fields, $loginMethod = null)
   {
     global $db, $settings, $abs_us_root, $us_url_root;
 
@@ -400,12 +400,14 @@ if (!function_exists('socialLogin')) {
         $db->insert('us_ip_list', [
           'user_id' => $user->data()->id,
           'ip' => $ip,
+          'timestamp' => date('Y-m-d H:i:s'),
         ]);
       } else {
         $f = $q->first();
         $db->update('us_ip_list', $f->id, [
           'user_id' => $user->data()->id,
           'ip' => $ip,
+          'timestamp' => date('Y-m-d H:i:s'),
         ]);
       }
 
@@ -454,6 +456,43 @@ if (!function_exists('socialLogin')) {
     $user->login();
     if (!isset($_SESSION['redirect'])) {
       $_SESSION['redirect'] = null;
+    }
+
+    if($loginMethod !== null){
+      setLoginMethod($loginMethod);
+    }else{
+      $backtrace = debug_backtrace();
+      $filePath = $backtrace[0]['file'];
+           if (strpos($filePath, 'oauth_login') !== false) {
+            $loginMethod = 'oauth';            
+          } elseif (strpos($filePath, 'google_login') !== false) {
+            $loginMethod = 'google';
+           
+          } elseif (strpos($filePath, 'facebook_login') !== false || strpos($filePath, 'fb') !== false) {
+            $loginMethod = 'facebook';
+          
+          } elseif (strpos($filePath, 'github_login') !== false) {
+            $loginMethod = 'github';
+           
+          } elseif (strpos($filePath, 'discord_login') !== false) {
+            $loginMethod = 'discord';
+            
+          } elseif (strpos($filePath, 'twitch_login') !== false) {
+            $loginMethod = 'twitch';
+           
+          } elseif (strpos($filePath, 'okta_login') !== false) {
+            $loginMethod = 'okta';
+            
+          } elseif (strpos($filePath, 'microsoft_login') !== false || strpos($filePath, 'azure_login') !== false) {
+            $loginMethod = 'microsoft';
+           
+          } elseif (strpos($filePath, 'saml') !== false ) {
+            $loginMethod = 'saml';
+           
+          }else{
+            $loginMethod = 'password';
+          }
+          setLoginMethod($loginMethod);
     }
 
     $_POST['redirect'] = $_SESSION['redirect'];
@@ -507,4 +546,16 @@ if (!function_exists('generateUsername')) {
     }
     return $username;
   }
+}
+
+/**
+ * Set login method in session - called by various login handlers
+ */
+function setLoginMethod($method) {
+    $_SESSION[INSTANCE . '_login_method'] = $method;
+    
+    // Log the login method for debugging
+    if (isset($GLOBALS['user']) && $GLOBALS['user']->isLoggedIn()) {
+        logger($GLOBALS['user']->data()->id, "Login_Method", "Login method set to: " . $method);
+    }
 }

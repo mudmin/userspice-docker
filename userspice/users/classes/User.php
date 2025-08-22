@@ -132,12 +132,14 @@ class User
                         $this->_db->insert('us_ip_list', [
                             'user_id' => $this->data()->id,
                             'ip' => $ip,
+                            'timestamp' => date('Y-m-d H:i:s'),
                         ]);
                     } else {
                         $f = $q->first();
                         $this->_db->update('us_ip_list', $f->id, [
                             'user_id' => $this->data()->id,
                             'ip' => $ip,
+                            'timestamp' => date('Y-m-d H:i:s'),
                         ]);
                     }
 
@@ -174,7 +176,10 @@ class User
                 
                 if ($success) {
                     if($strength < 13){
-                        $this->_db->update('users', $this->data()->id, ['password' => password_hash(Input::sanitize($rawpassword), PASSWORD_BCRYPT, ['cost' => 13])]);
+                        //deal with custom login forms that do not properly pass the password
+                        if($rawpassword != null && $rawpassword != ""){
+                            $this->_db->update('users', $this->data()->id, ['password' => password_hash(Input::sanitize($rawpassword), PASSWORD_BCRYPT, ['cost' => 13])]);
+                        }             
                     }
                     Session::put($this->_sessionName, $this->data()->id);
 
@@ -202,12 +207,14 @@ class User
                         $this->_db->insert('us_ip_list', [
                             'user_id' => $this->data()->id,
                             'ip' => $ip,
+                            'timestamp' => date('Y-m-d H:i:s'),
                         ]);
                     } else {
                         $f = $q->first();
                         $this->_db->update('us_ip_list', $f->id, [
                             'user_id' => $this->data()->id,
                             'ip' => $ip,
+                            'timestamp' => date('Y-m-d H:i:s'),
                         ]);
                     }
 
