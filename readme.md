@@ -24,7 +24,6 @@ This repository contains a Docker setup for running UserSpice, a user management
    OR
    ```
    docker-compose up -d
-
    ```
    On first run, the latest UserSpice release will be downloaded and configured automatically.
 
