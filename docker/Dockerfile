@@ -13,6 +13,9 @@ RUN a2enmod rewrite
 # Copy Docker-configured init.php
 COPY ./docker/init.php /docker/init.php
 
+# Copy custom files overlay
+COPY ./custom_files /custom_files
+
 # Copy entrypoint script and deal with Windows line endings
 COPY ./docker/entrypoint.sh /usr/local/bin/entrypoint.sh
 RUN sed -i 's/\r$//' /usr/local/bin/entrypoint.sh && chmod +x /usr/local/bin/entrypoint.sh

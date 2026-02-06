@@ -25,5 +25,13 @@ if [ ! -d "/var/www/html/users" ]; then
     echo "UserSpice setup complete."
 fi
 
+# Apply custom files overlay on every start
+if [ -d "/custom_files" ] && [ "$(ls -A /custom_files 2>/dev/null)" ]; then
+    echo "Applying custom files..."
+    cp -rf /custom_files/* /var/www/html/
+    chown -R www-data:www-data /var/www/html
+    echo "Custom files applied."
+fi
+
 # Start Apache in the foreground
 exec apache2-foreground
