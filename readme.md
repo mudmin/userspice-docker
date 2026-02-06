@@ -1,6 +1,6 @@
 # UserSpice Docker Setup
 
-This repository contains a Docker setup for running UserSpice, a user management system built in PHP.
+This repository contains a Docker setup for running UserSpice, a user management system built in PHP. The latest version of UserSpice is automatically downloaded when you first start the containers.
 
 ## Prerequisites
 
@@ -15,44 +15,52 @@ This repository contains a Docker setup for running UserSpice, a user management
    cd userspice-docker
    ```
 
-2. Download UserSpice and place its files in the `userspice` directory.
+2. Edit the .env file as needed.
 
-3. Edit the .env file as needed:
-
-4. Build and start the Docker containers:
+3. Build and start the Docker containers (depending on your Docker Compose Version):
+   ```
+   docker compose up -d
+   ```
+   OR
    ```
    docker-compose up -d
+
    ```
+   On first run, the latest UserSpice release will be downloaded and configured automatically.
 
-5. Access UserSpice at `http://localhost:9700` (or the port you specified in .env) 
+4. Access UserSpice at `http://localhost:9700` (or the port you specified in .env)
 
-6. The default username of this install is admin and the password is password.
+5. The default username is admin and the password is password.
    You will be asked to change it on your first login.
 
-7. If you see SQLSTATE[HY000] [2002] Connection refused, your mysql container has
-   probably not finished booting.   
+6. If you see SQLSTATE[HY000] [2002] Connection refused, your mysql container has
+   probably not finished booting.
 
-8. Access phpMyAdmin at `http://localhost:9701` (or the port you specified in .env)
+7. Access phpMyAdmin at `http://localhost:9701` (or the port you specified in .env)
 
 ## Configuration
 
 - Modify the `.env` file to change database credentials or ports.
+- If you change database credentials, you will also need to update `docker/init.php`.
 - The `sql.sql` file will be automatically imported into your MySQL database on first run.
 
 ## Persistence
 
-MySQL data is persisted in a Docker volume named `mysql_data`.
+- MySQL data is persisted in a Docker volume named `mysql_data`.
+- UserSpice files are stored in the `userspice/` directory, which is created on first run.
 
 ## Stopping the Containers
 
 To stop the containers, run:
 ```
-docker-compose down
+docker compose down
 ```
 
-To stop the containers and remove the persisted data, run:
-```
-docker-compose down -v
-```
+## Starting Over from Scratch
 
-
+To completely destroy the install and start fresh (new database, new UserSpice files):
+```
+docker compose down -v --rmi all
+sudo rm -rf userspice/
+docker compose up -d --build
+```

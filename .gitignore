@@ -3,6 +3,10 @@
 # Ignore MySQL data
 mysql_data/
 
+# UserSpice files downloaded at runtime
+userspice/
+/init.php
+
 # Ignore common OS and editor files
 .DS_Store
 Thumbs.db
