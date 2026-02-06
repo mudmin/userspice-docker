@@ -1,6 +1,6 @@
 # UserSpice Docker Setup
 
-This repository contains a Docker setup for running UserSpice, a user management system built in PHP. The latest version of UserSpice is automatically downloaded when you first start the containers.
+This repository contains a Docker setup for running UserSpice. The latest version of UserSpice is automatically downloaded when you first start the containers.
 
 ## Prerequisites
 
@@ -65,7 +65,7 @@ You can also replace `sql.sql` in the root of the repo to use your own database 
 
 ## Distributing Your Own Project
 
-Want to build and distribute your own project on top of UserSpice? Fork this repo and add your customized files to `custom_files/`. Your users can clone your fork and `docker compose up -d` to get a fully working instance of your project with the latest version of UserSpice and your customizations applied automatically.
+Want to build and distribute your own project on top of UserSpice? Fork this repo and add your customized files to `custom_files/`. Your users can clone your repo and `docker compose up -d` to get a fully working instance of your project with the latest version of UserSpice and your customizations applied automatically.
 
 ## Persistence
 
